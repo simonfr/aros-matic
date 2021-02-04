@@ -3,6 +3,7 @@
     <div class="title">
       <h1>Statistiques détaillées de votre plante</h1>
     </div>
+    <button v-on:click="fetchAPIData();">Rafraichir les données</button>
     <div class="wrapper">
       <div class="lumos"><h2>Luminosité</h2>
         <Histogram
@@ -28,32 +29,43 @@
           :num-bins="parseInt(bins)"
         />
       </div> 
-      <div class="lastarros"><h2>Date du dernier arrosage</h2></div>
+      <div class="lastarros">
+        <h2>Date du dernier arrosage</h2>
+        <h2 v-if="dataPlant">{{dataPlant[0].lastArrosageDate}}</h2>
+      </div>
       <div class="arrose"><h2>Conditions d'arrosage</h2>
-        <form action="" method="POST" class="form">
+        <form v-on:submit.prevent="submitForm">
           <fieldset>
-            <select id = "days"
-              multiple = "multiple"
-              size = "7">
-              <option value = "Lundi">Lundi</option>
-              <option value = "Mardi">Mardi</option>
-              <option value = "Mercredi">Mercredi</option>
-              <option value = "Jeudi">Jeudi</option>
-              <option value = "Vendredi">Vendredi</option>
-              <option value = "Samedi">Samedi</option>
-              <option value = "Dimanche">Dimanche</option>
-            </select>
-            <div class="form-example">
-              <label for="email">Arroser lorsque l'humidité est basse :</label>
-              <input type="checkbox" id="arroserHumidite">
-            </div>
-          </fieldset>
-          <input type="submit" onclick="showInput();" value="Arroser !">
-        </form>
-        <p><span id='display'></span></p>
+          <div class="form-group">
+               <label for="formControlRange">Jours d'arrosage</label><br /><br />
+              <select multiple name="days" class="form-control" id="days" v-model="form.days" size="7">
+                  <option value="lundi">Lundi</option>
+                  <option value="mardi">Mardi</option>
+                  <option value="mercredi">Mercredi</option>
+                  <option value="jeudi">Jeudi</option>
+                  <option value="vendredi">Vendredi</option>
+                  <option value="samedi">Samedi</option>
+                  <option value="dimanche">Dimanche</option>
+              </select>
+          </div><br />
+          <div class="form-group">
+            <label for="formControlRange">Arroser votre plante lorsque que l'humidité est basse ?</label><br />
+            <div class="form-check form-check-inline"><br />
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="arroserHumidite"
+                    v-model="form.arroserHumidite">
+            </div><br />
+          </div>
+          <div class="form-group">
+            <label for="name">Volume d'eau à arroser (en millilitre) :</label><br /><br />
+            <input type="number" class="form-control" id="volume" placeholder="Volume" v-model="form.volume">
+          </div><br />
+          <div class="form-group">
+              <button class="btn btn-primary">Enregistrer</button>
+          </div>
+        </fieldset>
+      </form>
       </div>
     </div>
-    <div id="my_dataviz"></div>
     <footer><img alt="Vue logo" src="../assets/logo.png"></footer>
   </div>
 </template>
@@ -61,6 +73,7 @@
 <script>
 import Histogram from './Histogram'
 import * as d3 from "d3";
+import axios from "axios";
 
 export default {
   name: "Stats",
@@ -69,9 +82,16 @@ export default {
   },
   data() {
     return {
+      counter: 0,
       data: {
         normal: d3.range(0, 2000).map(d3.randomNormal())
       },
+      dataPlant: null,
+      form: {
+              days: [],
+              arroserHumidite: '',
+              volume: ''
+          },
       width: 300,
       height: 200,
       bins: 20,
@@ -87,7 +107,30 @@ export default {
     },
     distributions() {
       return Object.keys(this.data);
-    }
+    },
+  },
+  methods: {
+    fetchAPIData() {  
+    axios
+      .get('http://localhost:8000/stats')
+      .then(response => {
+        console.info(response.data);
+        this.$data.dataPlant = response.data;
+      })
+      .catch(error => console.log(error))
+    },
+    submitForm(){
+      console.info(this.form)
+      axios.post('http://localhost:8000/conditions', this.form)
+        .then((res) => {
+          console.info(res)
+        })
+        .catch((error) => {
+          console.info(error)
+
+        }).finally(() => {
+        });
+      }
   },
   components: {
     Histogram: Histogram
