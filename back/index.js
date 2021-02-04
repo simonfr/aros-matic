@@ -1,49 +1,33 @@
 var express = require('express');
 var app = express();
 var startCron = require("./cron.js")
+var startSerial = require("./serial.js")
+const sqlite3 = require('sqlite3');
+var fs = require('fs')
+let db = new sqlite3.Database('../db.sqlite');
 var cors = require('cors')
 app.use(cors())
+
+
 app.get('/stats', function(req, res) {
-    res.send(JSON.stringify([
-        {
-            time: "2021-01-26T13:00:50.081Z",
-            luminosity: 652,
-            humidity: 845,
-            watering: false,
-            lastArrosageDate: "2021-01-15T13:00:50.081Z"
-        },
-        {
-            time: "2021-01-27T13:15:50.081Z",
-            luminosity: 187,
-            humidity: 259,
-            watering: false,
-            lastArrosageDate: "2021-01-15T13:00:50.081Z"
-        },
-        {
-            time: "2021-01-28T13:30:50.081Z",
-            luminosity: 154,
-            humidity: 522,
-            watering: false,
-            lastArrosageDate: "2021-01-15T13:00:50.081Z"
-        },
-        {
-            time: "2021-01-29T13:45:50.081Z",
-            luminosity: 487,
-            humidity: 651,
-            watering: false,
-            lastArrosageDate: "2021-01-15T13:00:50.081Z"
+    db.all("SELECT * FROM measures", [], (err, rows) => {
+        if (err) {
+            throw err;
         }
-    ]));
+
+        res.send(JSON.stringify(rows));
+    });
 });
 
 app.get('/actions', function(req, res) {
     res.send('hello world');
 });
 
-app.get('/conditions', function(req, res) {
-    
-    res.send('hello world');
+app.post('/actions', function (req, res) {
+    const data = req.json()
+    fs.writeFile('action.json', data, 'utf8', () => {});
 });
 
 startCron()
-app.listen(process.env.PORT || 8000);
+startSerial()
+app.listen(process.env.PORT || 8080);
