@@ -39,13 +39,13 @@
           <div class="form-group">
                <label for="formControlRange">Jours d'arrosage</label><br /><br />
               <select multiple name="days" class="form-control" id="days" v-model="form.days" size="7">
-                  <option value="1">Lundi</option>
-                  <option value="2">Mardi</option>
-                  <option value="3">Mercredi</option>
-                  <option value="4">Jeudi</option>
-                  <option value="5">Vendredi</option>
-                  <option value="6">Samedi</option>
-                  <option value="7">Dimanche</option>
+                  <option value=1>Lundi</option>
+                  <option value=2>Mardi</option>
+                  <option value=3>Mercredi</option>
+                  <option value=4>Jeudi</option>
+                  <option value=5>Vendredi</option>
+                  <option value=6>Samedi</option>
+                  <option value=7>Dimanche</option>
               </select>
           </div><br />
           <div class="form-group">
@@ -115,14 +115,15 @@ export default {
     axios
       .get('http://localhost:8000/stats')
       .then(response => {
-        console.info(response.data);
         this.$data.dataPlant = response.data;
       })
       .catch(error => console.log(error))
     },
     submitForm(){
-      console.info(this.form)
-      axios.post('http://localhost:8000/conditions', this.form)
+      this.form.days = this.form.days.map(i=>Number(i))
+      console.info(this.form.days)
+
+      axios.post('http://localhost:8000/actions', this.form)
         .then((res) => {
           console.info(res)
         })
