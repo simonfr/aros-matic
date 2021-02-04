@@ -39,13 +39,13 @@
           <div class="form-group">
                <label for="formControlRange">Jours d'arrosage</label><br /><br />
               <select multiple name="days" class="form-control" id="days" v-model="form.days" size="7">
-                  <option value="lundi">Lundi</option>
-                  <option value="mardi">Mardi</option>
-                  <option value="mercredi">Mercredi</option>
-                  <option value="jeudi">Jeudi</option>
-                  <option value="vendredi">Vendredi</option>
-                  <option value="samedi">Samedi</option>
-                  <option value="dimanche">Dimanche</option>
+                  <option value="1">Lundi</option>
+                  <option value="2">Mardi</option>
+                  <option value="3">Mercredi</option>
+                  <option value="4">Jeudi</option>
+                  <option value="5">Vendredi</option>
+                  <option value="6">Samedi</option>
+                  <option value="7">Dimanche</option>
               </select>
           </div><br />
           <div class="form-group">
@@ -100,6 +100,7 @@ export default {
   },
   computed: {
     selectedData() {
+      
       return this.data["normal"].slice(
         0,
         parseInt(this.sampleSize)
@@ -132,6 +133,9 @@ export default {
         });
       }
   },
+  beforeMount(){
+    this.fetchAPIData()
+ },
   components: {
     Histogram: Histogram
   }
