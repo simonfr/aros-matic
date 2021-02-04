@@ -32,6 +32,7 @@
       <div class="lastarros">
         <h2>Date du dernier arrosage</h2>
         <h2 v-if="dataPlant">{{dataPlant[0].lastArrosageDate}}</h2>
+        <h2>26/06/2015</h2>
       </div>
       <div class="arrose"><h2>Conditions d'arrosage</h2>
         <form v-on:submit.prevent="submitForm">
@@ -87,6 +88,9 @@ export default {
         normal: d3.range(0, 2000).map(d3.randomNormal())
       },
       dataPlant: null,
+      luminosityData: [],
+      datesData: [],
+      humidityData: [],
       form: {
               days: [],
               arroserHumidite: '',
@@ -115,14 +119,18 @@ export default {
     axios
       .get('http://localhost:8000/stats')
       .then(response => {
-        this.$data.dataPlant = response.data;
+        this.dataPlant = response.data;
+        this.dataPlant.forEach(element => {
+          this.luminosityData.push(element.luminosity);
+          this.humidityData.push(element.humidity);
+          this.datesData.push(element.date);
+        });
+        console.info(this.dataPlant)
       })
       .catch(error => console.log(error))
     },
     submitForm(){
       this.form.days = this.form.days.map(i=>Number(i))
-      console.info(this.form.days)
-
       axios.post('http://localhost:8000/actions', this.form)
         .then((res) => {
           console.info(res)
